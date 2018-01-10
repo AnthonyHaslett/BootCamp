@@ -6,5 +6,5 @@
  * Time: 10:55
  */
 
-echo "fail";
+echo "pass";
 
