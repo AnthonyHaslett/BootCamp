@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <?php require_once('DatabaseConnection.php')?>
 <?php
-
 $database = new DatabaseConnection();
 $values =$database->getConncetion()->prepare("SELECT `Attended` FROM Attendance");
 $values->execute();
