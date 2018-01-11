@@ -1,5 +1,15 @@
 <!DOCTYPE html>
+<?php require_once('DatabaseConnection.php')?>
+<?php
 
+$database = new DatabaseConnection();
+$values =$database->getConncetion()->prepare("SELECT `Attended` FROM Attendance");
+$values->execute();
+$attended= $values->fetch()[0];
+$values =$database->getConncetion()->prepare("SELECT `Unattended` FROM Attendance");
+$values->execute();
+$unAttended = $values->fetch()[0];
+?>
 <html lang="en-US">
 <body>
 
@@ -18,8 +28,10 @@
     function drawChart() {
         var data = google.visualization.arrayToDataTable([
             ['Task', 'Individuals Attending'],
-            ['Attended', 8],
-            ['Unattended', 2]
+            ['Attended', <?php echo $attended?>],
+
+            ['Unattended', <?php
+                echo $unAttended?>]
         ]);
 
         // Optional; add a title and set the width and height of the chart
@@ -32,9 +44,4 @@
 </script>
 </body>
 </html>
-<?php
-    $database = new DatabaseConnection();
-    $values =$database->getConncetion()->prepare("SELECT * FROM Attendance");
-    $values->execute();
-    print_r($values->fetchAll());
-?>
+
