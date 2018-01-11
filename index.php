@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en-US">
 <body>
 
@@ -18,8 +19,7 @@
         var data = google.visualization.arrayToDataTable([
             ['Task', 'Individuals Attending'],
             ['Attended', 8],
-            ['Unattended', 2],
-
+            ['Unattended', 2]
         ]);
 
         // Optional; add a title and set the width and height of the chart
@@ -30,6 +30,11 @@
         chart.draw(data, options);
     }
 </script>
-
 </body>
 </html>
+<?php
+    $database = new DatabaseConnection();
+    $values =$database->getConncetion()->prepare("SELECT * FROM Attendance");
+    $values->execute();
+    print_r($values->fetchAll());
+?>
