@@ -3,10 +3,10 @@
 <?php require_once('DatabaseConnection.php')?>
 <?php
 $database = new DatabaseConnection();
-$values =$database->getConncetion()->prepare("SELECT `Attended` FROM Attendance");
+$values =$database->getConncetion()->prepare("SELECT COUNT(`attended`) FROM event_yp WHERE `attended`=1");
 $values->execute();
 $attended= $values->fetch()[0];
-$values =$database->getConncetion()->prepare("SELECT `Unattended` FROM Attendance");
+$values =$database->getConncetion()->prepare("SELECT COUNT(`attended`) FROM event_yp WHERE `attended`=0");
 $values->execute();
 $unAttended = $values->fetch()[0];
 ?>
@@ -37,8 +37,8 @@ $unAttended = $values->fetch()[0];
         var data = google.visualization.arrayToDataTable([
             ['Type', 'Attended', 'Not attending'],
 
-            ['Attended',  <?php echo $attended?>,  <?php echo $attended?>],
-            ['Unattended', <?php echo $attended?>, <?php echo $unAttended?> ]
+            ['Attended',  <?php echo $attended?>,  null],
+            ['Unattended', null, <?php echo $unAttended?> ]
 
 
         ]);
