@@ -37,8 +37,8 @@ $unAttended = $values->fetch()[0];
         var data = google.visualization.arrayToDataTable([
             ['Type', 'Attended', 'Not attending'],
 
-            ['Attended',  <?php echo $attended?>,  <?php echo $attended?>],
-            ['Unattended', <?php echo $attended?>, <?php echo $unAttended?> ]
+            ['Attended',  <?php echo $attended?>, 0],
+            ['Unattended', '0', <?php echo $unAttended?> ]
 
 
         ]);
@@ -66,9 +66,9 @@ $unAttended = $values->fetch()[0];
     // Draw the chart and set the chart values for the attendee chart
     function drawAttendeeChart() {
         var data = google.visualization.arrayToDataTable([
-            ['Type', 'Boys', 'Girls', 'Other'],
-            ['Under 14s', 2, 3, 1],
-            ['Over 14s', 1, 3, 0]
+            ['Type', 'Boys', 'Girls'],
+            ['Under 14s', 2, 3],
+            ['Over 14s', 1, 3]
 
 
 
