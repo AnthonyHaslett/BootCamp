@@ -3,10 +3,27 @@
 <?php require_once('DatabaseConnection.php')?>
 <?php
 $database = new DatabaseConnection();
-$values =$database->getConncetion()->prepare("SELECT COUNT(`attended`) FROM event_yp WHERE `attended`=1");
+//$values =$database->getConncetion()->prepare("SELECT COUNT(`attended`) FROM event_yp WHERE `attended`=1");
+$values =$database->getConncetion()->prepare("SELECT id_participants, SUM(attended) AS attendedCount
+FROM event_participants, event_overview, event_yp
+WHERE event_participants.id_participants = event_yp.id_yp
+AND event_overview.id_event = event_participants.id_event
+AND event_yp.attended = 1
+AND YEAR(date)=2017
+GROUP BY (id_participants)
+HAVING attendedCount >=1 AND attendedCount <=5
+order by(id_participants);");
 $values->execute();
 $attended= $values->fetch()[0];
-$values =$database->getConncetion()->prepare("SELECT COUNT(`attended`) FROM event_yp WHERE `attended`=0");
+$values =$database->getConncetion()->prepare("SELECT id_participants, SUM(attended) AS attendedCount
+FROM event_participants, event_overview, event_yp
+WHERE event_participants.id_participants = event_yp.id_yp
+AND event_overview.id_event = event_participants.id_event
+AND event_yp.attended = 1
+AND YEAR(date)=2017
+GROUP BY (id_participants)
+HAVING attendedCount >=1 AND attendedCount <=5
+order by(id_participants);");
 $values->execute();
 $unAttended = $values->fetch()[0];
 ?>
@@ -16,7 +33,7 @@ $unAttended = $values->fetch()[0];
 <h1>Graphical Statistics</h1>
 
 <script>
-    
+
 function decide(select) {
     var chart = new String(select.options[select.selectedIndex].getAttribute("chart"));
     //alert(select.options[select.selectedIndex].getAttribute("chart"));
@@ -39,17 +56,130 @@ function decide(select) {
 
 
 }
+
+function year(select) {
+    var chart = new String(select.options[select.selectedIndex].getAttribute("year"));
+    //alert(select.options[select.selectedIndex].getAttribute("chart"));
+    if (chart == "2017")
+    {
+
+    }
+    else if(chart =="2016")
+    {
+
+    }
+    else if(chart =="2015")
+    {
+
+    }
+
+    else if(chart =="2014")
+    {
+
+    }
+
+    else if(chart =="2013")
+    {
+
+    }
+
+
+
+
+}
+
+
+function month(select) {
+    var chart = new String(select.options[select.selectedIndex].getAttribute("month"));
+    //alert(select.options[select.selectedIndex].getAttribute("chart"));
+    if (chart == "jan")
+    {
+
+    }
+    else if(chart =="feb")
+    {
+
+    }
+    else if(chart =="mar")
+    {
+
+    }
+    else if(chart =="apr")
+    {
+
+    }
+    else if(chart =="may")
+    {
+
+    }
+    else if(chart =="jun")
+    {
+
+    }
+    else if(chart =="jul")
+    {
+
+    }
+    else if(chart =="aug")
+    {
+
+    }
+    else if(chart =="sep")
+    {
+
+    }
+    else if(chart =="oct")
+    {
+
+    }
+    else if(chart =="nov")
+    {
+
+    }
+    else if(chart =="dec")
+    {
+
+    }
+
+}
+
+
 </script>
 <!--Create buttons that call the methods for drawing each chart-->
 <select onchange=decide(this)>
+    <option chart="">Select attendance chart</option>
     <option chart="attendance">Attendance chart</option>
     <option chart="attendancePie">Attendance pie chart</option>
 </select>
 
 <select onchange=decide(this)>
+    <option chart="">Select attendee chart</option>
     <option chart="attendee">Attendee chart</option>
     <option chart="attendeePie">Attendee pie chart</option>
 </select>
+<br>
+<select onchange=decide(this)>
+    <option month="jan">January</option>
+    <option month="feb">February</option>
+    <option month="mar">March</option>
+    <option month="apr">April</option>
+    <option month="may">May</option>
+    <option month="jun">June</option>
+    <option month="jul">July</option>
+    <option month="aug">August</option>
+    <option month="sep">September</option>
+    <option month="oct">October</option>
+    <option month="nov">November</option>
+    <option month="dec">December</option>
+</select>
+
+<select onchange=decide(this)>
+    <option year="2014">2014</option>
+    <option year="2015">2015</option>
+    <option year="2016">2016</option>
+    <option year="2017">2017</option>
+</select>
+
 <!--<button onclick="drawAttendanceChart()">Attendance chart</button>-->
 <!--<button onclick="drawAttendancePieChart()">Attendance Pie chart</button>-->
 <!--<button onclick="drawAttendeeChart()">Attendee chart</button>-->
@@ -109,7 +239,10 @@ function decide(select) {
         ]);
 
         // Optional; add a title and set the width and height of the chart
-        var options = {'title':'Event Attendance '
+        var options = {'title':'Event Attendance ',
+
+            'width':900,
+            'height':900
 
         };
 
