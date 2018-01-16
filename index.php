@@ -1,31 +1,73 @@
 <!DOCTYPE html>
 <html lang="en-US">
+
+<head>
+    <meta charset="utf-8">
+</head>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="iframe.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+
 <?php require_once('DatabaseConnection.php')?>
 <?php
 $database = new DatabaseConnection();
 //$values =$database->getConncetion()->prepare("SELECT COUNT(`attended`) FROM event_yp WHERE `attended`=1");
-$values =$database->getConncetion()->prepare("SELECT id_participants, SUM(attended) AS attendedCount
-FROM event_participants, event_overview, event_yp
-WHERE event_participants.id_participants = event_yp.id_yp
-AND event_overview.id_event = event_participants.id_event
-AND event_yp.attended = 1
-AND YEAR(date)=2017
-GROUP BY (id_participants)
-HAVING attendedCount >=1 AND attendedCount <=5
-order by(id_participants);");
+$values =$database->getConncetion()->prepare("select sum(AttendanceCount) FROM (SELECT young_people.id_yp AS Particpant, COUNT(attended) AS AttendanceCount
+FROM young_people, event_yp, event_overview
+WHERE young_people.id_yp = event_yp.id_yp
+AND event_yp.id_event = event_overview.id_event
+AND attended=1 
+AND YEAR(event_overview.date) = 2017
+GROUP BY (young_people.id_yp)
+HAVING AttendanceCount >= 1 AND AttendanceCount <=5
+ORDER BY Particpant) AS sessions;");
 $values->execute();
 $attended= $values->fetch()[0];
-$values =$database->getConncetion()->prepare("SELECT id_participants, SUM(attended) AS attendedCount
-FROM event_participants, event_overview, event_yp
-WHERE event_participants.id_participants = event_yp.id_yp
-AND event_overview.id_event = event_participants.id_event
-AND event_yp.attended = 1
-AND YEAR(date)=2017
-GROUP BY (id_participants)
-HAVING attendedCount >=1 AND attendedCount <=5
-order by(id_participants);");
+$values =$database->getConncetion()->prepare("select sum(AttendanceCount) FROM (SELECT young_people.id_yp AS Particpant, COUNT(attended) AS AttendanceCount
+FROM young_people, event_yp, event_overview
+WHERE young_people.id_yp = event_yp.id_yp
+AND event_yp.id_event = event_overview.id_event
+AND attended=1
+AND YEAR(event_overview.date) = 2016
+GROUP BY (young_people.id_yp)
+HAVING AttendanceCount >= 1 AND AttendanceCount <=5
+ORDER BY Particpant) AS sessions;");;
 $values->execute();
 $unAttended = $values->fetch()[0];
+
+$values =$database->getConncetion()->prepare("SELECT young_people.id_yp AS Particpant, count(attended) as AttendanceCount, COUNT(event_yp.id_event) as Event_Count
+FROM young_people, event_yp, event_overview
+WHERE young_people.id_yp = event_yp.id_yp
+AND event_yp.id_event = event_overview.id_event
+AND attended=1 
+GROUP BY(young_people.id_yp)
+HAVING AttendanceCount > 6
+ORDER BY Particpant;");;
+$values->execute();
+$participant = $values->fetch()[0];
+
+$values =$database->getConncetion()->prepare("SELECT  SUM(Sessions_Attended) AS Sessions
+FROM(SELECT COUNT(young_people.id_yp) * COUNT(event_yp.id_event) AS Sessions_Attended, count(attended) as AttendanceCount
+FROM young_people,event_yp, event_overview
+WHERE  young_people.id_yp = event_yp.id_yp
+AND event_yp.attended = 1
+AND event_yp.id_eventyp = event_overview.id_event
+group by (young_people.id_yp)
+HAVING AttendanceCount > 6
+ORDER BY Sessions_Attended) 
+
+AS sessions;");;
+$values->execute();
+$sessions = $values->fetch()[0];
+
 ?>
 
 <body>
@@ -53,132 +95,54 @@ function decide(select) {
     {
         drawAttendeePieChart()
     }
-
-
-}
-
-function year(select) {
-    var chart = new String(select.options[select.selectedIndex].getAttribute("year"));
-    //alert(select.options[select.selectedIndex].getAttribute("chart"));
-    if (chart == "2017")
+    else if(chart =="session")
     {
-
+        drawSessionChart()
     }
-    else if(chart =="2016")
+    else if(chart =="sessionPie")
     {
-
-    }
-    else if(chart =="2015")
-    {
-
-    }
-
-    else if(chart =="2014")
-    {
-
-    }
-
-    else if(chart =="2013")
-    {
-
-    }
-
-
-
-
-}
-
-
-function month(select) {
-    var chart = new String(select.options[select.selectedIndex].getAttribute("month"));
-    //alert(select.options[select.selectedIndex].getAttribute("chart"));
-    if (chart == "jan")
-    {
-
-    }
-    else if(chart =="feb")
-    {
-
-    }
-    else if(chart =="mar")
-    {
-
-    }
-    else if(chart =="apr")
-    {
-
-    }
-    else if(chart =="may")
-    {
-
-    }
-    else if(chart =="jun")
-    {
-
-    }
-    else if(chart =="jul")
-    {
-
-    }
-    else if(chart =="aug")
-    {
-
-    }
-    else if(chart =="sep")
-    {
-
-    }
-    else if(chart =="oct")
-    {
-
-    }
-    else if(chart =="nov")
-    {
-
-    }
-    else if(chart =="dec")
-    {
-
+        drawSessionPieChart()
     }
 
 }
+
+
 
 
 </script>
-<!--Create buttons that call the methods for drawing each chart-->
+
+
+<div class="styled-select blue semi-square">
 <select onchange=decide(this)>
     <option chart="">Select attendance chart</option>
     <option chart="attendance">Attendance chart</option>
     <option chart="attendancePie">Attendance pie chart</option>
 </select>
+</div>
 
+<div class="styled-select blue semi-square">
 <select onchange=decide(this)>
     <option chart="">Select attendee chart</option>
     <option chart="attendee">Attendee chart</option>
     <option chart="attendeePie">Attendee pie chart</option>
 </select>
-<br>
-<select onchange=decide(this)>
-    <option month="jan">January</option>
-    <option month="feb">February</option>
-    <option month="mar">March</option>
-    <option month="apr">April</option>
-    <option month="may">May</option>
-    <option month="jun">June</option>
-    <option month="jul">July</option>
-    <option month="aug">August</option>
-    <option month="sep">September</option>
-    <option month="oct">October</option>
-    <option month="nov">November</option>
-    <option month="dec">December</option>
-</select>
+</div>
 
+    <div class="styled-select blue semi-square">
 <select onchange=decide(this)>
-    <option year="2014">2014</option>
-    <option year="2015">2015</option>
-    <option year="2016">2016</option>
-    <option year="2017">2017</option>
+    <option chart="">Select Session attended chart</option>
+    <option chart="session">Session attended chart</option>
+    <option chart="sessionPie">Session attended pie chart</option>
 </select>
+    </div>
+
+
+<!--<select onchange=decide(this)>-->
+<!--    <option year="2014">2014</option>-->
+<!--    <option year="2015">2015</option>-->
+<!--    <option year="2016">2016</option>-->
+<!--    <option year="2017">2017</option>-->
+<!--</select>-->
 
 <!--<button onclick="drawAttendanceChart()">Attendance chart</button>-->
 <!--<button onclick="drawAttendancePieChart()">Attendance Pie chart</button>-->
@@ -199,16 +163,16 @@ function month(select) {
     // Draw the chart and set the chart values for the attendance chart
     function drawAttendanceChart() {
         var data = google.visualization.arrayToDataTable([
-            ['Type', 'Attended', 'Not attending'],
+            ['Type', '2016', '2017'],
 
-            ['Attended',  <?php echo $attended?>,  null],
-            ['Unattended', null, <?php echo $unAttended?> ]
+            ['2016',  <?php echo $unAttended?>,  null],
+            ['2017', null, <?php echo $participant?> ]
 
 
         ]);
 
         // Optional; add a title and set the width and height of the chart
-        var options = {'title':'Event Attendance ',
+        var options = {'title':'Engaged ',
             'width':900,
             'height':900,
             isStacked: true
@@ -230,10 +194,10 @@ function month(select) {
 
     function drawAttendancePieChart() {
         var data = google.visualization.arrayToDataTable([
-            ['Type', 'Attended', 'Not attending'],
+            ['Type', '2016', '2017'],
 
-            ['Attended',  <?php echo $attended?>,  null],
-            ['Unattended', <?php echo $unAttended?>, null ]
+            ['2016',  <?php echo $unAttended?>,  null],
+            ['2017', <?php echo $attended?>, null ]
 
 
         ]);
@@ -296,6 +260,58 @@ function month(select) {
         chart.draw(data, options);
 
     }
+
+    function drawSessionChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['Type', '2016', '2017'],
+
+            ['2016',  <?php echo $unAttended?>,  null],
+            ['2017', null, <?php echo $sessions?> ]
+
+
+        ]);
+
+        // Optional; add a title and set the width and height of the chart
+        var options = {'title':'Sessions participated ',
+            'width':900,
+            'height':900,
+            isStacked: true
+        };
+
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart = new google.visualization.ColumnChart(document.getElementById('barChart'));
+        chart.draw(data, options);
+
+    }
+
+
+    function drawSessionPieChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['Type', '2016', '2017'],
+
+            ['2016',  <?php echo $unAttended?>,  null],
+            ['2017', <?php echo $sessions?>, null ]
+
+
+        ]);
+
+        // Optional; add a title and set the width and height of the chart
+        var options = {'title':'Sessions participated ',
+
+            'width':900,
+            'height':900
+
+        };
+
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart = new google.visualization.PieChart(document.getElementById('barChart'));
+        chart.draw(data, options);
+
+
+    }
+
 </script>
 
 </body>
