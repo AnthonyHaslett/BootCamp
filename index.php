@@ -54,19 +54,33 @@ ORDER BY Particpant;");;
 $values->execute();
 $participant = $values->fetch()[0];
 
-$values =$database->getConncetion()->prepare("SELECT  SUM(Sessions_Attended) AS Sessions
-FROM(SELECT COUNT(young_people.id_yp) * COUNT(event_yp.id_event) AS Sessions_Attended, count(attended) as AttendanceCount
-FROM young_people,event_yp, event_overview
-WHERE  young_people.id_yp = event_yp.id_yp
-AND event_yp.attended = 1
-AND event_yp.id_eventyp = event_overview.id_event
-group by (young_people.id_yp)
-HAVING AttendanceCount > 6
-ORDER BY Sessions_Attended) 
+//$values =$database->getConncetion()->prepare("SELECT  SUM(Sessions_Attended) AS Sessions
+//FROM(SELECT COUNT(young_people.id_yp) * COUNT(event_yp.id_event) AS Sessions_Attended, count(attended) as AttendanceCount
+//FROM young_people,event_yp, event_overview
+//WHERE  young_people.id_yp = event_yp.id_yp
+//AND event_yp.attended = 1
+//AND event_yp.id_eventyp = event_overview.id_event
+//group by (young_people.id_yp)
+//HAVING AttendanceCount > 6
+//ORDER BY Sessions_Attended)
+//
+//AS sessions;");;
 
-AS sessions;");;
+$values =$database->getConncetion()->prepare("SELECT SUM(AttendanceCount) FROM (SELECT young_people.id_yp AS Particpant, COUNT(attended) as AttendanceCount
+FROM young_people, event_yp
+WHERE young_people.id_yp = event_yp.id_yp
+AND attended=1 
+group by young_people.id_yp
+HAVING AttendanceCount >= 1 AND AttendanceCount <=5) AS AttendanceCount;");
+
 $values->execute();
-$sessions = $values->fetch()[0];
+$sessions1 = $values->fetch()[0];
+
+$values =$database->getConncetion()->prepare("select SUM(boys + girls) * COUNT(id_event) from event_participants
+where id_cohort <= 5 AND id_cohort>=1;");
+
+$values->execute();
+$sessions2 = $values->fetch()[0];
 
 ?>
 
@@ -114,9 +128,9 @@ function decide(select) {
 
 <div class="styled-select blue semi-square">
 <select onchange=decide(this)>
-    <option chart="">Select attendance chart</option>
-    <option chart="attendance">Attendance chart</option>
-    <option chart="attendancePie">Attendance pie chart</option>
+    <option chart="">Select engaged chart</option>
+    <option chart="attendance">Engaged chart</option>
+    <option chart="attendancePie">Engaged pie chart</option>
 </select>
 </div>
 
@@ -262,11 +276,12 @@ function decide(select) {
     }
 
     function drawSessionChart() {
+
         var data = google.visualization.arrayToDataTable([
             ['Type', '2016', '2017'],
 
             ['2016',  <?php echo $unAttended?>,  null],
-            ['2017', null, <?php echo $sessions?> ]
+            ['2017', null, <?php echo ($finalValue = $sessions1 + $sessions2)?> ]
 
 
         ]);
@@ -291,7 +306,7 @@ function decide(select) {
             ['Type', '2016', '2017'],
 
             ['2016',  <?php echo $unAttended?>,  null],
-            ['2017', <?php echo $sessions?>, null ]
+            ['2017', <?php echo ($finalValue = $sessions1 + $sessions2)?>, null ]
 
 
         ]);
