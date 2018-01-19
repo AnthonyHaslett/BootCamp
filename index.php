@@ -3,6 +3,8 @@
 
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <!-- Latest compiled and minified CSS -->
@@ -29,8 +31,12 @@ AND YEAR(event_overview.date) = 2017
 GROUP BY (young_people.id_yp)
 HAVING AttendanceCount >= 1 AND AttendanceCount <=5
 ORDER BY Particpant) AS sessions;");
+
 $values->execute();
 $attended= $values->fetch()[0];
+
+//=--------------------------------------
+
 $values =$database->getConncetion()->prepare("select sum(AttendanceCount) FROM (SELECT young_people.id_yp AS Particpant, COUNT(attended) AS AttendanceCount
 FROM young_people, event_yp, event_overview
 WHERE young_people.id_yp = event_yp.id_yp
@@ -43,6 +49,8 @@ ORDER BY Particpant) AS sessions;");;
 $values->execute();
 $unAttended = $values->fetch()[0];
 
+
+//-----------------------------------------------------------
 $values =$database->getConncetion()->prepare("SELECT young_people.id_yp AS Particpant, count(attended) as AttendanceCount, COUNT(event_yp.id_event) as Event_Count
 FROM young_people, event_yp, event_overview
 WHERE young_people.id_yp = event_yp.id_yp
@@ -53,6 +61,7 @@ HAVING AttendanceCount > 6
 ORDER BY Particpant;");;
 $values->execute();
 $participant = $values->fetch()[0];
+
 
 //$values =$database->getConncetion()->prepare("SELECT  SUM(Sessions_Attended) AS Sessions
 //FROM(SELECT COUNT(young_people.id_yp) * COUNT(event_yp.id_event) AS Sessions_Attended, count(attended) as AttendanceCount
@@ -66,6 +75,8 @@ $participant = $values->fetch()[0];
 //
 //AS sessions;");;
 
+
+
 $values =$database->getConncetion()->prepare("SELECT SUM(AttendanceCount) FROM (SELECT young_people.id_yp AS Particpant, COUNT(attended) as AttendanceCount
 FROM young_people, event_yp
 WHERE young_people.id_yp = event_yp.id_yp
@@ -75,12 +86,140 @@ HAVING AttendanceCount >= 1 AND AttendanceCount <=5) AS AttendanceCount;");
 
 $values->execute();
 $sessions1 = $values->fetch()[0];
+//--------------------------------------------------------
 
 $values =$database->getConncetion()->prepare("select SUM(boys + girls) * COUNT(id_event) from event_participants
 where id_cohort <= 5 AND id_cohort>=1;");
 
 $values->execute();
 $sessions2 = $values->fetch()[0];
+
+//-----------------------------------------------------
+$values =$database->getConncetion()->prepare("select SUM(boys + girls) from event_participants
+where id_cohort >= 6;");
+$values->execute();
+$Participants = $values->fetch()[0];
+
+//----------------------------------------
+$values =$database->getConncetion()->prepare("SELECT SUM(AttendanceCount) FROM (SELECT young_people.id_yp AS Particpant, COUNT(attended) as AttendanceCount
+FROM young_people, event_yp
+WHERE young_people.id_yp = event_yp.id_yp
+AND attended=1 
+group by young_people.id_yp
+HAVING AttendanceCount >= 6) AS AttendanceCount;");
+$values->execute();
+$youngPeople = $values->fetch()[0];
+
+//---------------------------------------
+
+$values =$database->getConncetion()->prepare("SELECT COUNT(event_yp.id_yp)
+FROM event_yp, young_people
+WHERE event_yp.id_yp = young_people.id_yp
+AND  YEAR(CURDATE())- YEAR(dob) <= 14;");
+$values->execute();
+$youngUnder = $values->fetch()[0];
+
+//---------------------------------------
+
+$values =$database->getConncetion()->prepare("SELECT COUNT(event_yp.id_yp)
+FROM event_yp, young_people
+WHERE event_yp.id_yp = young_people.id_yp
+AND  YEAR(CURDATE())- YEAR(dob) > 14;");
+$values->execute();
+$youngOver = $values->fetch()[0];
+//-----------------------------------------
+$values =$database->getConncetion()->prepare("SELECT SUM(boys) AS Boys_2017, SUM(girls) AS Girls_2017
+FROM event_participants, event_overview
+WHERE event_participants.id_event =  event_overview.id_event
+AND YEAR(event_overview.date) = 2016;");
+$values->execute();
+$boys = $values->fetch()[0];
+$girls = $values->fetch()[1];
+//---------------------------------
+
+$values =$database->getConncetion()->prepare("SELECT SUM(boys) AS Boys_2017, SUM(girls) AS Girls_2017
+FROM event_participants, event_overview
+WHERE event_participants.id_event =  event_overview.id_event
+AND YEAR(event_overview.date) = 2017");
+$values->execute();
+$boys2017 = $values->fetch()[0];
+$girls2017 = $values->fetch()[1];
+
+$values =$database->getConncetion()->prepare("SELECT SUM(under14) FROM event_participants;");
+$values->execute();
+$u14Bulk = $values->fetch()[0];
+
+//--------------------------
+
+$values =$database->getConncetion()->prepare("SELECT COUNT(event_yp.id_yp)
+FROM event_yp, young_people
+WHERE event_yp.id_yp = young_people.id_yp
+AND  YEAR(CURDATE())- YEAR(dob) <= 14;");
+$values->execute();
+$u14 = $values->fetch()[0];
+
+//------------------------------
+
+$values =$database->getConncetion()->prepare("SELECT SUM(14plus) FROM event_participants;");
+$values->execute();
+$o14Bulk = $values->fetch()[0];
+//-------------------------------------
+
+$values =$database->getConncetion()->prepare("SELECT COUNT(event_yp.id_yp)
+FROM event_yp, young_people
+WHERE event_yp.id_yp = young_people.id_yp
+AND  YEAR(CURDATE())- YEAR(dob) > ");
+$values->execute();
+$o14 = $values->fetch()[0];
+
+//---------------------------------------------------
+
+$values =$database->getConncetion()->prepare("SELECT COUNT(gender) FROM young_people, event_yp, event_overview
+WHERE young_people.id_yp = young_people.id_yp
+AND event_overview.id_event = event_yp.id_event
+AND YEAR(event_overview.date) = 2016
+AND attended=1
+AND gender = 'M'
+;");
+$values->execute();
+$youngMale2016 = $values->fetch()[0];
+
+//---------------------------------------------------
+$values =$database->getConncetion()->prepare("SELECT COUNT(gender) FROM young_people, event_yp, event_overview
+WHERE young_people.id_yp = young_people.id_yp
+AND event_overview.id_event = event_yp.id_event
+AND YEAR(event_overview.date) = 2016
+AND attended=1
+AND gender = 'F'
+;
+");
+$values->execute();
+$youngFemale2016 = $values->fetch()[0];
+
+//---------------------------------------------------
+$values =$database->getConncetion()->prepare("SELECT COUNT(gender) FROM young_people, event_yp, event_overview
+WHERE young_people.id_yp = young_people.id_yp
+AND event_overview.id_event = event_yp.id_event
+AND YEAR(event_overview.date) = 2017
+AND attended=1
+AND gender = 'M'
+;
+");
+$values->execute();
+$youngMale2017 = $values->fetch()[0];
+
+
+//---------------------------------------------------
+$values =$database->getConncetion()->prepare("SELECT COUNT(gender) FROM young_people, event_yp, event_overview
+WHERE young_people.id_yp = young_people.id_yp
+AND event_overview.id_event = event_yp.id_event
+AND YEAR(event_overview.date) = 2017
+AND attended=1
+AND gender = 'F'
+;
+");
+$values->execute();
+$youngFemale2017 = $values->fetch()[0];
 
 ?>
 
@@ -117,14 +256,37 @@ function decide(select) {
     {
         drawSessionPieChart()
     }
+    else if(chart =="boyGirl")
+    {
+        drawBoyGirlChart()
+    }
+    else if(chart =="boyGirlPie")
+    {
+        drawBoyGirlPieChart()
+    }
+    else if(chart =="age")
+    {
+        drawAgeChart()
+    }
+    else if(chart =="agePie")
+    {
+        drawAgePieChart()
+    }
 
+    else if(chart =="youngGender")
+    {
+        drawYoungGenderChart()
+    }
+    else if(chart =="youngGenderPie")
+    {
+        drawYoungGenderPieChart()
+    }
 }
 
 
 
 
 </script>
-
 
 <div class="styled-select blue semi-square">
 <select onchange=decide(this)>
@@ -136,9 +298,9 @@ function decide(select) {
 
 <div class="styled-select blue semi-square">
 <select onchange=decide(this)>
-    <option chart="">Select attendee chart</option>
-    <option chart="attendee">Attendee chart</option>
-    <option chart="attendeePie">Attendee pie chart</option>
+    <option chart="">Select Participant chart</option>
+    <option chart="attendee">Participant chart</option>
+    <option chart="attendeePie">Participant pie chart</option>
 </select>
 </div>
 
@@ -150,7 +312,29 @@ function decide(select) {
 </select>
     </div>
 
+<div class="styled-select blue semi-square">
+    <select onchange=decide(this)>
+        <option chart="">Select Boy and girl chart</option>
+        <option chart="boyGirl">Boy and Girl chart</option>
+        <option chart="boyGirlPie">Boy and Girl pie chart</option>
+    </select>
+</div>
 
+<div class="styled-select blue semi-square">
+    <select onchange=decide(this)>
+        <option chart="">Select age chart</option>
+        <option chart="age">Age chart</option>
+        <option chart="agePie">Age pie chart</option>
+    </select>
+</div>
+
+<div class="styled-select blue semi-square">
+    <select onchange=decide(this)>
+        <option chart="">Select Young Gender chart</option>
+        <option chart="youngGender">Young Gender chart</option>
+        <option chart="youngGenderPie">Young Gender pie chart</option>
+    </select>
+</div>
 <!--<select onchange=decide(this)>-->
 <!--    <option year="2014">2014</option>-->
 <!--    <option year="2015">2015</option>-->
@@ -237,37 +421,36 @@ function decide(select) {
     // Draw the chart and set the chart values for the attendee chart
     function drawAttendeeChart() {
         var data = google.visualization.arrayToDataTable([
-            ['Type', 'Boys', 'Girls'],
-            ['Under 14s', 2, 3],
-            ['Over 14s', 1, 3]
+            ['Type', 'Young People', 'Under 14s', 'Over 14s'],
+            ['Young People', <?php echo ($Participants + $youngPeople)?>, null, null],
+                ['Under 14s', null, <?php echo $youngUnder?>, null],
+                ['Over 14s', null, null, <?php echo $youngOver?>]
 
 
 
         ]);
 
         // Optional; add a title and set the width and height of the chart
-        var options = {'title':'Attendees ', isStacked: true, 'width':900, 'height':900};
+        var options = {'title':'Participants ', isStacked: true, 'width':900, 'height':900};
 
         // Display the chart inside the <div> element with id="piechart"
         var chart = new google.visualization.ColumnChart(document.getElementById('barChart'));
         chart.draw(data, options);
 
     }
-
+//
     function drawAttendeePieChart() {
         var data = google.visualization.arrayToDataTable([
-            ['Type', 'Boys', 'Girls', 'under 14s', 'over 14s'],
-            ['Under 14s', 5, null, null, null],
-            ['Over 14s', 4, null, null, null],
-            ['Boys', 3, null, null, null],
-            ['Girls', 6, null, null, null]
+            ['Type', 'Young People'],
+            ['Young People', <?php echo ($Participants + $youngPeople)?>]
+
 
 
 
         ]);
 
         // Optional; add a title and set the width and height of the chart
-        var options = {'title':'Attendees ', isStacked: true, 'width':900, 'height':900};
+        var options = {'title':'Attendees ', 'width':900, 'height':900};
 
         // Display the chart inside the <div> element with id="piechart"
         var chart = new google.visualization.PieChart(document.getElementById('barChart'));
@@ -326,6 +509,173 @@ function decide(select) {
 
 
     }
+
+    function drawBoyGirlChart() {
+
+        var data = google.visualization.arrayToDataTable([
+            ['Type', 'boys', 'girls'],
+
+            ['2016 boys', 0,  null],
+            ['2016 girls', null, 1334],
+            ['2017 boys', 2464, null],
+            ['2017 girls', null, 0 ]
+
+
+
+        ]);
+
+        // Optional; add a title and set the width and height of the chart
+        var options = {'title':'Boys and girls participated ',
+            'width':900,
+            'height':900,
+            isStacked: true
+        };
+
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart = new google.visualization.ColumnChart(document.getElementById('barChart'));
+        chart.draw(data, options);
+
+    }
+
+    function drawBoyGirlPieChart() {
+
+        var data = google.visualization.arrayToDataTable([
+            ['Type', 'boys 2016', 'girls 2016', 'boys 2017', 'girls 2017'],
+
+            ['2016 boys', 0,  null, null, null],
+            ['2016 girls',1334, null, null, null],
+            ['2017 boys', 2464, null,null , null],
+            ['2017 girls',0, null, null,null  ]
+
+
+        ]);
+
+        // Optional; add a title and set the width and height of the chart
+        var options = {'title':'Boys and girls participated ',
+            'width':900,
+            'height':900,
+
+        };
+
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart = new google.visualization.PieChart(document.getElementById('barChart'));
+        chart.draw(data, options);
+
+    }
+
+    function drawAgeChart() {
+
+        var data = google.visualization.arrayToDataTable([
+            ['Type', 'under 14s', 'over 14s'],
+
+            ['Under 14s', <?php echo ($u14 + $u14Bulk) ?>,  null],
+            ['Over 14s', null, <?php echo ($o14 + $o14Bulk) ?>,]
+
+
+
+        ]);
+
+        // Optional; add a title and set the width and height of the chart
+        var options = {'title':'Boys and girls participated ',
+            'width':900,
+            'height':900,
+            isStacked: true
+        };
+
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart = new google.visualization.ColumnChart(document.getElementById('barChart'));
+        chart.draw(data, options);
+
+    }
+
+    function drawAgePieChart() {
+
+        var data = google.visualization.arrayToDataTable([
+            ['Type', 'under 14s', 'over 14s'],
+
+            ['Under 14s', <?php echo ($u14 + $u14Bulk) ?>,  null],
+            ['Over 14s', <?php echo ($o14 + $o14Bulk) ?>, null]
+
+
+        ]);
+
+        // Optional; add a title and set the width and height of the chart
+        var options = {'title':'Age charts ',
+            'width':900,
+            'height':900,
+
+        };
+
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart = new google.visualization.PieChart(document.getElementById('barChart'));
+        chart.draw(data, options);
+
+    }
+
+    function drawYoungGenderChart() {
+
+        var data = google.visualization.arrayToDataTable([
+            ['Type', 'Young Male', 'Young Female'],
+
+            ['2016 Young Male', <?php echo $youngMale2016 ?>,  null],
+            ['2016 Young Female', null, <?php echo $youngFemale2016 ?>],
+            ['2017 Young Male', <?php echo $youngMale2017 ?>,  null],
+            ['2017 Young Female', null, <?php echo $youngFemale2017 ?>]
+
+
+
+        ]);
+
+        // Optional; add a title and set the width and height of the chart
+        var options = {'title':'Young People genders ',
+            'width':900,
+            'height':900,
+            isStacked: true
+        };
+
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart = new google.visualization.ColumnChart(document.getElementById('barChart'));
+        chart.draw(data, options);
+
+    }
+
+    function drawYoungGenderPieChart() {
+
+        var data = google.visualization.arrayToDataTable([
+                ['Type', 'Young Male 2016', 'Young Female 2016'],
+
+                ['2016 Young Male', 23,  null],
+                ['2016 Young Female', 20, null],
+                    ['2017 Young Male', 55,  null],
+            ['2017 Young Female', 77, null]
+
+//                    ['2016 Young Male', <?php //echo $youngMale2016 ?>//,  null, null, null],
+//            ['2016 Young Male', <?php //echo $youngMale2016 ?>//, null, null, null],
+//            ['2017 Young Male', <?php //echo $youngMale2017 ?>//, null,null , null],
+//            ['2017 Young Female', <?php //echo $youngFemale2017 ?>//, null, null,null  ]
+
+        ]);
+
+        // Optional; add a title and set the width and height of the chart
+        var options = {'title':'Young People genders ',
+            'width':900,
+            'height':900,
+
+        };
+
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart = new google.visualization.PieChart(document.getElementById('barChart'));
+        chart.draw(data, options);
+
+    }
+
+
 
 </script>
 
