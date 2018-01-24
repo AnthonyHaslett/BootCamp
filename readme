@@ -1,0 +1,33 @@
+--------------------------------Graphical Data web solution ---------------------------------------------------
+
+This readme contains the necessary information required to successfully utilise our web solution.
+
+
+-------------------------------Navigation----------------------------------------------------------------------
+
+to navigate throughout the web solution, the user needs to interact with the multiple dropdown-menu buttons displayed on the left hand side of the page. 
+These buttons have the appropriate labels on them to clearly identify the types of data that will be displayed in each graph, and each button contains a maximum of 2 graphs
+that display a set of data.
+
+-------------------------------How the solution works----------------------------------------------------------
+
+The solution uses a set of advanced SQL queries that filter data from a given database, utilising a set of rules in order to grab specific types of data that is required
+to be displayed in a graphical format. The SQL statements are executed within the PHP script, and the results are deposited into PHP variables, which are used within
+the JavaScript graphs in order to project the necessary values. 
+
+It uses a function-based refresh method that re-executes the SQL queries every second, in order to project real-time data into the graphs, so the user is 
+never delayed on receiving data and never has to refresh the page in order to see results. 
+
+-------------------------------Step by step introduction------------------------------------------------------
+
+Once the page has been loaded up, and the SQL statements along with it, the user will only need to follow a small set of simple interactions in order to successfully
+use this solution. The steps are as follows:
+
+1. 	Navigate to the left-side navigation pane
+2.	Select an appropriate navigation buttonbased on the labels
+3.	Upon selecting, click the navigation button to activate the drop-down menu
+4.	Select and click on the appropriate graph you require, with options of either a column chart or pie chart
+5.	Examine the data, by reading the output, utilising the keys to determine the data by colour, or simply by hovering the mouse over the specific element in order
+to activate an annotation that projects both the element name and it's exact value.
+
+Following these steps for each graph will allow you to successfully use this solution.
