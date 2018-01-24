@@ -229,6 +229,212 @@ $youngFemale2017 = $values->fetch()[0];
 
 <script>
 
+    setInterval(refresh(), 1000);
+    function refresh()
+    {
+        <?php require_once('DatabaseConnection.php')?>
+        <?php
+        $database = new DatabaseConnection();
+        $values =$database->getConncetion()->prepare("select sum(AttendanceCount) FROM (SELECT young_people.id_yp AS Particpant, COUNT(attended) AS AttendanceCount
+        FROM young_people, event_yp, event_overview
+        WHERE young_people.id_yp = event_yp.id_yp
+        AND event_yp.id_event = event_overview.id_event
+        AND attended=1
+        AND YEAR(event_overview.date) = 2017
+        GROUP BY (young_people.id_yp)
+        HAVING AttendanceCount >= 1 AND AttendanceCount <=5
+        ORDER BY Particpant) AS sessions;");
+
+        $values->execute();
+        $attended= $values->fetch()[0];
+
+//=--------------------------------------
+
+        $values =$database->getConncetion()->prepare("select sum(AttendanceCount) FROM (SELECT young_people.id_yp AS Particpant, COUNT(attended) AS AttendanceCount
+        FROM young_people, event_yp, event_overview
+        WHERE young_people.id_yp = event_yp.id_yp
+        AND event_yp.id_event = event_overview.id_event
+        AND attended=1
+        AND YEAR(event_overview.date) = 2016
+        GROUP BY (young_people.id_yp)
+        HAVING AttendanceCount >= 1 AND AttendanceCount <=5
+        ORDER BY Particpant) AS sessions;");;
+        $values->execute();
+        $unAttended = $values->fetch()[0];
+
+
+//-----------------------------------------------------------
+        $values =$database->getConncetion()->prepare("SELECT young_people.id_yp AS Particpant, count(attended) as AttendanceCount, COUNT(event_yp.id_event) as Event_Count
+        FROM young_people, event_yp, event_overview
+        WHERE young_people.id_yp = event_yp.id_yp
+        AND event_yp.id_event = event_overview.id_event
+        AND attended=1
+        GROUP BY(young_people.id_yp)
+        HAVING AttendanceCount > 6
+        ORDER BY Particpant;");;
+        $values->execute();
+        $participant = $values->fetch()[0];
+
+
+//$values =$database->getConncetion()->prepare("SELECT  SUM(Sessions_Attended) AS Sessions
+//FROM(SELECT COUNT(young_people.id_yp) * COUNT(event_yp.id_event) AS Sessions_Attended, count(attended) as AttendanceCount
+//FROM young_people,event_yp, event_overview
+//WHERE  young_people.id_yp = event_yp.id_yp
+//AND event_yp.attended = 1
+//AND event_yp.id_eventyp = event_overview.id_event
+//group by (young_people.id_yp)
+//HAVING AttendanceCount > 6
+//ORDER BY Sessions_Attended)
+//
+//AS sessions;");;
+
+
+
+        $values =$database->getConncetion()->prepare("SELECT SUM(AttendanceCount) FROM (SELECT young_people.id_yp AS Particpant, COUNT(attended) as AttendanceCount
+        FROM young_people, event_yp
+        WHERE young_people.id_yp = event_yp.id_yp
+        AND attended=1
+        group by young_people.id_yp
+        HAVING AttendanceCount >= 1 AND AttendanceCount <=5) AS AttendanceCount;");
+
+        $values->execute();
+        $sessions1 = $values->fetch()[0];
+//--------------------------------------------------------
+
+        $values =$database->getConncetion()->prepare("select SUM(boys + girls) * COUNT(id_event) from event_participants
+        where id_cohort <= 5 AND id_cohort>=1;");
+
+        $values->execute();
+        $sessions2 = $values->fetch()[0];
+
+//-----------------------------------------------------
+        $values =$database->getConncetion()->prepare("select SUM(boys + girls) from event_participants
+        where id_cohort >= 6;");
+        $values->execute();
+        $Participants = $values->fetch()[0];
+
+//----------------------------------------
+        $values =$database->getConncetion()->prepare("SELECT SUM(AttendanceCount) FROM (SELECT young_people.id_yp AS Particpant, COUNT(attended) as AttendanceCount
+        FROM young_people, event_yp
+        WHERE young_people.id_yp = event_yp.id_yp
+        AND attended=1
+        group by young_people.id_yp
+        HAVING AttendanceCount >= 6) AS AttendanceCount;");
+        $values->execute();
+        $youngPeople = $values->fetch()[0];
+
+//---------------------------------------
+
+        $values =$database->getConncetion()->prepare("SELECT COUNT(event_yp.id_yp)
+        FROM event_yp, young_people
+        WHERE event_yp.id_yp = young_people.id_yp
+        AND  YEAR(CURDATE())- YEAR(dob) <= 14;");
+        $values->execute();
+        $youngUnder = $values->fetch()[0];
+
+//---------------------------------------
+
+        $values =$database->getConncetion()->prepare("SELECT COUNT(event_yp.id_yp)
+        FROM event_yp, young_people
+        WHERE event_yp.id_yp = young_people.id_yp
+        AND  YEAR(CURDATE())- YEAR(dob) > 14;");
+        $values->execute();
+        $youngOver = $values->fetch()[0];
+//-----------------------------------------
+        $values =$database->getConncetion()->prepare("SELECT SUM(boys) AS Boys_2017, SUM(girls) AS Girls_2017
+        FROM event_participants, event_overview
+        WHERE event_participants.id_event =  event_overview.id_event
+        AND YEAR(event_overview.date) = 2016;");
+        $values->execute();
+        $boys = $values->fetch()[0];
+        $girls = $values->fetch()[1];
+//---------------------------------
+
+        $values =$database->getConncetion()->prepare("SELECT SUM(boys) AS Boys_2017, SUM(girls) AS Girls_2017
+        FROM event_participants, event_overview
+        WHERE event_participants.id_event =  event_overview.id_event
+        AND YEAR(event_overview.date) = 2017");
+        $values->execute();
+        $boys2017 = $values->fetch()[0];
+        $girls2017 = $values->fetch()[1];
+
+        $values =$database->getConncetion()->prepare("SELECT SUM(under14) FROM event_participants;");
+        $values->execute();
+        $u14Bulk = $values->fetch()[0];
+
+//--------------------------
+
+        $values =$database->getConncetion()->prepare("SELECT COUNT(event_yp.id_yp)
+        FROM event_yp, young_people
+        WHERE event_yp.id_yp = young_people.id_yp
+        AND  YEAR(CURDATE())- YEAR(dob) <= 14;");
+        $values->execute();
+        $u14 = $values->fetch()[0];
+
+//------------------------------
+
+        $values =$database->getConncetion()->prepare("SELECT SUM(14plus) FROM event_participants;");
+        $values->execute();
+        $o14Bulk = $values->fetch()[0];
+//-------------------------------------
+
+        $values =$database->getConncetion()->prepare("SELECT COUNT(event_yp.id_yp)
+        FROM event_yp, young_people
+        WHERE event_yp.id_yp = young_people.id_yp
+        AND  YEAR(CURDATE())- YEAR(dob) > ");
+        $values->execute();
+        $o14 = $values->fetch()[0];
+
+//---------------------------------------------------
+
+        $values =$database->getConncetion()->prepare("SELECT COUNT(gender) FROM young_people, event_yp, event_overview
+        WHERE young_people.id_yp = young_people.id_yp
+        AND event_overview.id_event = event_yp.id_event
+        AND YEAR(event_overview.date) = 2016
+        AND attended=1
+        AND gender = 'M'
+    ;");
+        $values->execute();
+        $youngMale2016 = $values->fetch()[0];
+
+//---------------------------------------------------
+        $values =$database->getConncetion()->prepare("SELECT COUNT(gender) FROM young_people, event_yp, event_overview
+        WHERE young_people.id_yp = young_people.id_yp
+        AND event_overview.id_event = event_yp.id_event
+        AND YEAR(event_overview.date) = 2016
+        AND attended=1
+        AND gender = 'F'
+    
+        ");
+        $values->execute();
+        $youngFemale2016 = $values->fetch()[0];
+
+//---------------------------------------------------
+        $values =$database->getConncetion()->prepare("SELECT COUNT(gender) FROM young_people, event_yp, event_overview
+        WHERE young_people.id_yp = young_people.id_yp
+        AND event_overview.id_event = event_yp.id_event
+        AND YEAR(event_overview.date) = 2017
+        AND attended=1
+        AND gender = 'M'
+    ;
+        ");
+        $values->execute();
+        $youngMale2017 = $values->fetch()[0];
+
+
+//---------------------------------------------------
+        $values =$database->getConncetion()->prepare("SELECT COUNT(gender) FROM young_people, event_yp, event_overview
+        WHERE young_people.id_yp = young_people.id_yp
+        AND event_overview.id_event = event_yp.id_event
+        AND YEAR(event_overview.date) = 2017
+        AND attended=1
+        AND gender = 'F'
+    ;
+        ");
+        $values->execute();
+        $youngFemale2017 = $values->fetch()[0];
+?>
+    }
 function decide(select) {
     var chart = new String(select.options[select.selectedIndex].getAttribute("chart"));
     //alert(select.options[select.selectedIndex].getAttribute("chart"));
@@ -442,9 +648,9 @@ function decide(select) {
     function drawAttendeePieChart() {
         var data = google.visualization.arrayToDataTable([
             ['Type', 'Young People'],
-            ['Young People', <?php echo ($Participants + $youngPeople)?>]
-
-
+            ['Young People', <?php echo ($Participants + $youngPeople)?>],
+                ['Under 14s', <?php echo $youngUnder?>],
+                ['Over 14s', <?php echo $youngOver?>]
 
 
         ]);
